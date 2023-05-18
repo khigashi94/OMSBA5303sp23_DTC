@@ -1,0 +1,129 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# Load Libraries
+```{r}
+library(readxl)
+library(dynlm) # use the dynlm package
+```
+
+#Import data and declare time series
+```{r}
+data<- read_excel("ch3_UnemploymentRate.xls")
+data_first_90pct <- data[1:ceiling(0.9*data_row_ct),]
+data_estimation_sample <- tail(data, data_row_ct-ceiling(0.9*data_row_ct))
+
+data_row_ct <- nrow(data)
+data_first_90pct_row_ct <- nrow(data_first_90pct)
+data_estimation_sample_row_ct <- data_row_ct-ceiling(0.9*data_row_ct)
+g <- ts(data$UNRATE, frequency = 12, start=c(1948,1)) #declare g as (monthly) time series
+
+```
+
+# Table 9.2. P235
+# Model 1 Fixed Scheme
+```{r}
+fcast1<-numeric(data_estimation_sample_row_ct) #generate a vector of zeros (length of estimation sample set)
+ferror1<-numeric(data_estimation_sample_row_ct) #generate a vector of zeros (length of estimation sample set)
+loss1<-numeric(data_estimation_sample_row_ct) #generate a vector of zeros (length of estimation sample set)
+
+model<-dynlm(g ~ lag(g,-1)+ lag(g,-3), start=c(1948,1), end=c(2023,2)) #fit AR(3)
+model
+summary(model)
+for (i in 1:data_estimation_sample_row_ct){ #start a for loop
+  fcast1[i]<-coef(model)[1]
+    + coef(model)[2]*g[data_first_90pct_row_ct-1+i]
+    + coef(model)[3]*g[data_first_90pct_row_ct-3+i] #fill in forecasted values at the end of each iteration
+  ferror1[i]<-g[data_first_90pct_row_ct+i]- fcast1[i] #fill in forecasted values at the end of each iteration
+  loss1[i] <-ferror1[i]^2
+} #end the loop
+
+cbind(fcast1, ferror1, loss1)
+MSE1 <- mean(loss1)
+
+mpetest <- lm(ferror1 ~ 1)
+summary(mpetest)
+
+IETest <- lm(ferror1 ~ fcast1)
+summary(IETest)
+plot(fcast1)
+```
+
+#Model2 (Naive)
+```{r}
+fcast2<-numeric(data_estimation_sample_row_ct) #generate a vector of zeros (length of estimation sample set)
+ferror2<-numeric(data_estimation_sample_row_ct) #generate a vector of zeros (length of estimation sample set)
+loss2<-numeric(data_estimation_sample_row_ct) #generate a vector of zeros (length of estimation sample set)
+
+for (i in 1:data_estimation_sample_row_ct){ 
+  fcast2[i]<-g[data_first_90pct_row_ct-1+i] #naive forecast
+  ferror2[i]<-g[data_first_90pct_row_ct+i]- fcast2[i] #fill in forecasted values at the end of each iteration
+  loss2[i] <-ferror2[i]^2
+ } 
+cbind(fcast2, ferror2, loss2)
+MSE2 <- mean(loss2)
+
+mpetest <- lm(ferror2 ~ 1)
+summary(mpetest)
+
+
+IETest <- lm(ferror2 ~ fcast2)
+summary(IETest)
+
+```
+
+
+#Model3 (Average-4)
+```{r}
+fcast3<-numeric(data_estimation_sample_row_ct) #generate a vector of zeros (length of estimation sample set)
+ferror3<-numeric(data_estimation_sample_row_ct) #generate a vector of zeros (length of estimation sample set)
+loss3<-numeric(data_estimation_sample_row_ct) #generate a vector of zeros (length of estimation sample set)
+
+
+for (i in 1:data_estimation_sample_row_ct){ 
+  fcast3[i]<-(g[data_estimation_sample_row_ct-1+i]
+              +g[data_estimation_sample_row_ct-2+i]
+              +g[data_estimation_sample_row_ct-3+i]
+              +g[data_estimation_sample_row_ct-4+i]
+            )/4  #forecast is the average of the last 4 observations
+  ferror3[i]<-g[data_estimation_sample_row_ct+i] - fcast3[i] #fill in forecasted values at the end of each iteration
+  loss3[i] <-ferror3[i]^2
+}
+
+cbind(fcast3, ferror3, loss3)
+MSE3 <- mean(loss3)
+
+mpetest <- lm(ferror3 ~ 1)
+summary(mpetest)
+
+
+IETest <- lm(ferror3 ~ fcast3)
+summary(IETest)
+
+```
+
+
+
+# Table 9.8  P246
+# Optimal Linear Combinations
+```{r}
+
+g0<-window(g,start=c(2015,9)) ## estimation sample date
+comb<-lm(g0~fcast1+fcast2+fcast3)
+summary(comb)
+
+
+fcast4<-numeric(data_estimation_sample_row_ct) #generate a vector of zeros (length of estimation sample set)
+ferror4<-numeric(data_estimation_sample_row_ct) #generate a vector of zeros (length of estimation sample set)
+loss4<-numeric(data_estimation_sample_row_ct) #generate a vector of zeros (length of estimation sample set)
+
+fcast4 <- comb$fitted.values
+ferror4 <- g0-fcast4
+loss4 <-ferror4^2
+
+MSE4 <- mean(loss4)
+```
+
+
