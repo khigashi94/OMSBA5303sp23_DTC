@@ -142,8 +142,9 @@ data$observation_date = as.Date(data$observation_date)
 plot(x = data$observation_date, y = data$UNRATE, type = "l", lwd=3.0)+
   lines(x = forec$observation_date, y= forec$fcast1,lty=2,lwd=2,col="green")+
   lines(x = forec$observation_date, y= forec$fcast2,lty=2,lwd=2,col="red")+
-  lines(x = forec$observation_date, y= forec$fcast3,lty=2,lwd=2,col="orange")+
-  lines(x = forec$observation_date, y= forec$fcast4,lty=2,lwd=2,col="purple")
+  lines(x = forec$observation_date, y= forec$fcast3,lty=2,lwd=2,col="orange")
+# +
+#   lines(x = forec$observation_date, y= forec$fcast4,lty=2,lwd=2,col="purple")
 
 ```
 
@@ -153,8 +154,9 @@ plot(x = data$observation_date, y = data$UNRATE, type = "l", lwd=3.0)+
 plot(x = data$observation_date, y = data$UNRATE, type = "l", lwd=5.0, xlim=c(as.Date("2015-01-01"), as.Date("2023-01-04")) )+
   lines(x = forec$observation_date, y= forec$fcast1,lty=2,lwd=2,col="green")+
   lines(x = forec$observation_date, y= forec$fcast2,lty=2,lwd=2,col="red")+
-  lines(x = forec$observation_date, y= forec$fcast3,lty=2,lwd=2,col="orange")+
-  lines(x = forec$observation_date, y= forec$fcast4,lty=2,lwd=2,col="purple")
+  lines(x = forec$observation_date, y= forec$fcast3,lty=2,lwd=2,col="orange")
+# +
+#   lines(x = forec$observation_date, y= forec$fcast4,lty=2,lwd=2,col="purple")
 
 ```
 
@@ -164,8 +166,9 @@ plot(x = data$observation_date, y = data$UNRATE, type = "l", lwd=5.0, xlim=c(as.
 plot(x = data$observation_date, y = data$UNRATE, type = "l", lwd=5.0, xlim=c(as.Date("2020-01-01"), as.Date("2023-01-04")) )+
   lines(x = forec$observation_date, y= forec$fcast1,lty=2,lwd=2,col="green")+
   lines(x = forec$observation_date, y= forec$fcast2,lty=2,lwd=2,col="red")+
-  lines(x = forec$observation_date, y= forec$fcast3,lty=2,lwd=2,col="orange")+
-  lines(x = forec$observation_date, y= forec$fcast4,lty=2,lwd=2,col="purple")
+  lines(x = forec$observation_date, y= forec$fcast3,lty=2,lwd=2,col="orange")
+# +
+#   lines(x = forec$observation_date, y= forec$fcast4,lty=2,lwd=2,col="purple")
 
 ```
 
