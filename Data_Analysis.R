@@ -1,20 +1,25 @@
 library(readxl)
+library(stats)
+library(ggplot2)
 
-###plotting the data
+# Collect Data
+data<- read_excel("ch3_UnemploymentRate.xls")
+
+#plotting the data
 plot(data, type = 'l', main = 'Unemployment Rate')
 
-
-###creating time series
+#creating time series
 unrate <- ts(data$UNRATE, frequency = 12, start = 1948)
 
-###removing trend and seasonality
+#removing trend and seasonality
 unrate_d12 <- diff(unrate, differences = 12)
 plot(unrate_d12)
 
-###create acf and pacf
+#create acf and pacf 12m
 acf(unrate_d12)
 pacf(unrate_d12)
 
+#create acf and pacf
 acf(unrate)
 pacf(unrate)
 
@@ -30,16 +35,12 @@ print(AR)
 ARMA <- arima(unrate, order = c(1,0,1))
 print(ARMA)
 
-#create acf plot
+#create acf plot with lag 20
 acf(unrate, lag.max = 20, main = 'ACF PLOT')
 
-install.packages('ggplot2')
-library(ggplot2)
+# create time series data
 ts_data <- unrate
 ggtsdisplay(unrate, main = "ACF and PACF Plots")
 
-
-#creating Q-test to verify white noise process
-library(stats)
-
+# box test
 Box.test(unrate, type='Ljung-Box')
