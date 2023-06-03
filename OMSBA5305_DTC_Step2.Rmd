@@ -15,15 +15,17 @@ Declaration: An Excel file named "ch3_UnemploymentRate.xls" is read using read_e
 ```{r}
 data<- read_excel("ch3_UnemploymentRate.xls")
 
+# create train data, first 90%
 data_row_ct <- nrow(data)
 data_first_90pct <- data[1:ceiling(0.9*data_row_ct),]
 data_first_90pct_row_ct <- nrow(data_first_90pct)
 
-
+# set test data
 data_estimation_sample <- tail(data, data_row_ct-ceiling(0.9*data_row_ct))
-
 data_estimation_sample_row_ct <- data_row_ct-ceiling(0.9*data_row_ct)
-g <- ts(data$UNRATE, frequency = 12, start=c(1948,1), end = c(2023,2)) #declare g as (monthly) time series
+
+#declare g as (monthly) time series
+g <- ts(data$UNRATE, frequency = 12, start=c(1948,1), end = c(2023,2)) 
 
 ```
 
