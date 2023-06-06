@@ -25,22 +25,20 @@ data_length <- length(unrate)
 unrate_forecast <- ts(data$UNRATE, frequency = 12, start=c(1948,1), end = c(2023,2))
 
 ```
+
 ## Initial Data Plot 
 ```{r}
-#plotting the data
-plot(data, type = 'l', main = 'Unemployment Rate')
 ggplot() + 
-  geom_line(data, mapping=aes(x=observation_date, y=UNRATE))
+  geom_line(data, mapping=aes(x=observation_date, y=UNRATE))+
+  labs(title="GDP Forecast", colour="Forecasts") +
+  xlab("Date") +
+  ylab("GDP MoM% Rate")
 ```
 
 # Step 1
 ## Remove Trend and Seasonality
 ```{r}
-
 #removing trend and seasonality
-unrate_d12 <- diff(unrate, differences = 12)
-plot(unrate_d12)
-
 unrate_d12 <- diff(unrate, differences = 12)
 plot(unrate_d12)
 ```
@@ -63,7 +61,8 @@ ma_summary <- summary(MA)
 # Calculate the adjusted R-squared value
 ma_adjusted_r_squared <- 1 - (1 - ma_r_squared) * (data_length - 1) / (data_length)
 # Print the adjusted R-squared value
-print(ma_adjusted_r_squared)
+
+print(paste0("MA Adjusted R-squared: ",ma_adjusted_r_squared))
 
 # Z Test
 ma_t_stat <- coeftest(MA)
@@ -81,7 +80,8 @@ ar1_summary <- summary(AR1)
 # Calculate the adjusted R-squared value
 ar1_adjusted_r_squared <- 1 - (1 - ar1_r_squared) * (data_length - 1) / (data_length)
 # Print the adjusted R-squared value
-print(ar1_adjusted_r_squared)
+
+print(paste0("AR(1) Adjusted R-squared: ",ar1_adjusted_r_squared))
 
 # Z Test
 ar1_t_stat <- coeftest(AR1)
@@ -99,7 +99,7 @@ ar2_summary <- summary(AR2)
 # Calculate the adjusted R-squared value
 ar2_adjusted_r_squared <- 1 - (1 - ar2_r_squared) * (data_length - 1) / (data_length)
 # Print the adjusted R-squared value
-print(ar2_adjusted_r_squared)
+print(paste0("AR(2) adjusted R-squared: ", ar2_adjusted_r_squared))
 
 # Z Test
 ar2_t_stat <- coeftest(AR2)
@@ -114,7 +114,8 @@ ar3_summary <- summary(AR3)
 # Calculate the adjusted R-squared value
 ar3_adjusted_r_squared <- 1 - (1 - ar3_r_squared) * (data_length - 1) / (data_length)
 # Print the adjusted R-squared value
-print(ar3_adjusted_r_squared)
+
+print(paste0("AR(3) Adjusted R-squared: ",ar3_adjusted_r_squared))
 
 # Z Test
 ar3_t_stat <- coeftest(AR3)
@@ -130,9 +131,9 @@ arma1_r_squared <- as.numeric(ARMA1[2]$sigma2[1])
 arma1_summary <- summary(ARMA1)
 
 # Calculate the adjusted R-squared value
-arma1_adjusted_r_squared <- 1 - (1 - arma_r_squared) * (data_length - 1) / (data_length)
+arma1_adjusted_r_squared <- 1 - (1 - arma1_r_squared) * (data_length - 1) / (data_length)
 # Print the adjusted R-squared value
-print(arma1_adjusted_r_squared)
+print(paste0("ARMA Model 1 Adjusted R-squared: ",arma1_adjusted_r_squared))
 
 # Z Test
 arma1_t_stat <- coeftest(ARMA1)
@@ -148,7 +149,7 @@ arma2_summary <- summary(ARMA2)
 # Calculate the adjusted R-squared value
 arma2_adjusted_r_squared <- 1 - (1 - arma2_r_squared) * (data_length - 1) / (data_length)
 # Print the adjusted R-squared value
-print(arma2_adjusted_r_squared)
+print(paste0("ARMA Model 2 Adjusted R-squared: ",arma2_adjusted_r_squared))
 
 # Z Test
 arma2_t_stat <- coeftest(ARMA2)
@@ -165,7 +166,7 @@ arma3_summary <- summary(ARMA3)
 # Calculate the adjusted R-squared value
 arma3_adjusted_r_squared <- 1 - (1 - arma3_r_squared) * (data_length - 1) / (data_length)
 # Print the adjusted R-squared value
-print(arma3_adjusted_r_squared)
+print(paste0("ARMA Model 3 Adjusted R-squared: ",arma3_adjusted_r_squared))
 
 # Z Test
 arma3_t_stat <- coeftest(ARMA3)
@@ -179,12 +180,27 @@ Test statistic: The Dickey-Fuller test produces a test statistic that measures t
 # Linear MA Model
 adf_MA <- ur.df(MA$residuals)
 print(adf_MA)
+
 # Linear AR Model
-adf_AR <- ur.df(AR$residuals)
-print(adf_AR)
+adf_AR1 <- ur.df(AR1$residuals)
+print(adf_AR1)
+
+adf_AR2 <- ur.df(AR2$residuals)
+print(adf_AR2)
+
+adf_AR3 <- ur.df(AR3$residuals)
+print(adf_AR3)
+
 # Linear ARMA Model
-adf_ARMA <- ur.df(ARMA$residuals)
-print(adf_ARMA)
+adf_ARMA1 <- ur.df(ARMA1$residuals)
+print(adf_ARMA1)
+
+adf_ARMA2 <- ur.df(ARMA2$residuals)
+print(adf_ARMA2)
+
+adf_ARMA3 <- ur.df(ARMA3$residuals)
+print(adf_ARMA3)
+
 ```
 
 ##  AIC
@@ -234,15 +250,15 @@ The BIC penalizes models with more parameters more heavily than the AIC, effecti
 Similar to the AIC, lower BIC values indicate better-fitting models. When comparing multiple models, the model with the lowest BIC value is typically considered the best-fitting model.
 
 It's important to note that the AIC and BIC are both useful criteria for model selection, and the choice between them depends on the specific context and preferences. In some cases, the AIC may favor more complex models, while the BIC tends to favor simpler models.
-```{r}
-BIC(MA)
-BIC(AR1)
-BIC(AR2)
-BIC(AR3)
 
-BIC(ARMA1)
-BIC(ARMA2)
-BIC(ARMA3)
+```{r}
+print(paste0("MA BIC: ", BIC(MA)))
+print(paste0("AR1 BIC: ", BIC(AR1)))
+print(paste0("AR2 BIC: ", BIC(AR2)))
+print(paste0("AR3 BIC: ", BIC(AR3)))
+print(paste0("ARMA 1 BIC: ", BIC(ARMA1)))
+print(paste0("ARMA 2 BIC: ", BIC(ARMA2)))
+print(paste0("ARMA 3 BIC: ", BIC(ARMA3)))
 ```
 
 
@@ -252,19 +268,10 @@ The test is based on the Ljung-Box statistic, which measures the overall autocor
 Box.test(unrate, type='Ljung-Box')
 ```
 
-
-
-
-
-
-
-
-
-
-
 #Step 2:
 ##Import data and declare time series
 Declaration: An Excel file named "ch3_UnemploymentRate.xls" is read using read_excel(). The data is then divided into the first 90% portion (data_first_90pct) and the estimation sample (data_estimation_sample). A time series object unrate_forecast is created based on the "UNRATE" column.
+
 ```{r}
 # create train data, first 90%
 data_row_ct <- nrow(data)
@@ -314,10 +321,22 @@ summary(IETest)
 ### AR(3) One Step Ahead
 ```{r}
 ar3_onestep <- rbind(NA,NA,NA, data.frame(predict(ar3_model, h=1)))
-colnames(ar3_onestep)[1] <- "forecast"
-error_onestep <- test$UNRATE - test$forecast
-loss_onestep <- (test$UNRATE - test$forecast)^2
-fAR3_onestep <- cbind(data, ar3_onestep$forecast, error_onestep, loss_onestep)
+
+ar3_data_onestep <- cbind(data, ar3_onestep)
+colnames(ar3_data_onestep)[3] <- "forecast"
+
+ar3_onestep_error <- ar3_data_onestep$UNRATE - ar3_data_onestep$forecast
+ar3_onestep_loss <- (ar3_data_onestep$UNRATE - ar3_data_onestep$forecast)^2
+ar3_onestep_mse <- mean((ar3_data_onestep$UNRATE - ar3_data_onestep$forecast)^2)
+ar3_onestep_error
+
+fAR3_onestep <- cbind(data, ar3_data_onestep[3], error_onestep, loss_onestep)
+
+ar3_onestep_mpetest <- lm(ferror1 ~ 1)
+summary(ar3_onestep_mpetest)
+
+ar3_onestep_IETest <- lm(ar3_onestep_error ~ fAR3_onestep$forecast)
+summary(ar3_onestep_IETest)
 ```
 
 
@@ -332,7 +351,7 @@ for (i in 1:data_estimation_sample_row_ct){
   fcast2[i]<-unrate_forecast[data_first_90pct_row_ct-1+i] #naive forecast
   ferror2[i]<-unrate_forecast[data_first_90pct_row_ct+i]- fcast2[i] #fill in forecasted values at the end of each iteration
   loss2[i] <-ferror2[i]^2
- } 
+ }
 cbind(fcast2, ferror2, loss2)
 MSE2 <- mean(loss2)
 
@@ -482,179 +501,3 @@ ggplot() +
 
 
 # Part 3
-## Part 1 Simulation ###
-```{r}
-#P258 Generate time trend
-t=c(1:50) #generate t=1,2,...50
-y=1+.5*t+rnorm(50) #y=1+.5*trend + normal white noise
-ts.plot(y) #plot y
-lines(.5*t) #also plot the trend
-
-
-#P271 Generate randm walk
-y=numeric(500) #generate a vector of 500 zeros
-for (i in 2:500){ #start a for loop
-  y[i]=y[i-1]+rnorm(1) #generate random walk without drift
-} #end the loop
-ts.plot(y) #plot y
-lines(numeric(500)) #also plot horizontal line at zero
-
-ts.plot(cumsum(rnorm(500))) #another way to generate random walk without drift
-
-
-y=numeric(500) #generate a vector of 500 zeros
-for (i in 2:500){ 
-  y[i]=.5+y[i-1]+rnorm(1) #generate random walk with drift
-}
-ts.plot(y) #plot y
-lines(.5*c(1:500)) #also plot trend .5*t
-
-
-# P277 model for case I, showin in fig10.8a (You should run this serveral times to see the variation)
-y=numeric(500) #generate a vector of 500 zeros
-for (i in 2:500){ 
-  y[i]=0.9988*y[i-1]+rnorm(1) #generate random walk without drift
-}
-ts.plot(y) #plot y
-lines(0*c(1:500)) #also plot trend .5*t
-
-# P277 model for case II 
-y=numeric(500) #generate a vector of 500 zeros
-for (i in 2:500){ 
-  y[i]=-0.325+0.9905*y[i-1]+rnorm(1) #generate random walk with drift
-}
-ts.plot(y) #plot y
-lines(0*c(1:500)) #also plot trend .5*t
-
-# P277 model for case III showin in fig10.8b
-y=numeric(500) #generate a vector of 500 zeros
-for (i in 2:500){ 
-  y[i]=0.9167+0.0082i+0.9830*y[i-1]+rnorm(1) #generate random walk with drift and a time trend
-}
-ts.plot(y) #plot y
-lines(0*c(1:500)) #also plot trend .5*t
-
-## Part 2 Deterministic trend  ###
-#P266
-library(readxl)
-data <- read_excel("Figure10_5_MortgageDebt.xls")
-debt<-ts(data$`MORTGAGE DEBT`, frequency =4, start = c(1992,1)) #declare debt as quarterly time series
-plot(debt)
-
-trend1 = ts(c(1:49), frequency = 4, start = c(1992,1)) #trend1=1,2,3...60, declared to be time-series
-model <-lm(debt ~ poly(trend1, 4, raw=TRUE)) # y=b0+b1*t+b2*t^2+b3*t^31+b4*t^4+WN
-summary(model) #estimation output
-
-AIC(model) #AIC
-## [1] 434.5619
-BIC(model) #BIS
-## [1] 445.9129
-
-plot.ts(debt, ylab="", lty=2) #plot debt w/o y-axis title, dashed
-fit = ts(fitted(model), frequency = 4, start=c(1992,1)) #declare fit as quarterly time series
-res = ts(resid(model), frequency = 4, start=c(1992,1)) #declare res as quarterly time series
-lines(fit, col="red", lty=2) #also plot fit in red color
-par(new=TRUE) #following series will be graphed on the existing plot
-plot.ts(res, axes=FALSE, ylab="", col="blue") #plot residuals w/o y-axis title, in blue color
-axis(side=4, at = pretty(range(res))) #add the right y-axis for residuals
-legend("topleft", legend=c("Actual", "Fit", "Res"), lty=c(2,2,1), col=c("black", "red", "blue")) #legend, debt and fit will be dashed 
-
-acf(res) #ACF of residuals of the 4th order polynomial trend model
-pacf(res) #PACF of residuals of the 4th order polynomial trend model
-
-#P268
-#install.packages("dynlm") #install dynamic linear modelling package
-library(dynlm) #dynlm is required for using lag operators
-model <- dynlm(debt ~ trend1+I(trend1^2)+I(trend1^3)+I(trend1^4)+lag(debt,-1)+lag(debt,-2)) #AR(2) + polynomial(4) trend
-summary(model) #estimation output
-
-AIC(model) #AIC
-## [1] 394.7132
-BIC(model) #BIS
-## [1] 409.5144
-
-#P269
-
-plot.ts(debt, ylab="", lty=2) #plot debt w/o y-axis title, dashed
-fit = ts(fitted(model), frequency = 4, start=c(1992,3)) #declare fit as quarterly time series, note that fitted values start drom 1992q3 because it is an AR(2) model
-res = ts(resid(model), frequency = 4, start=c(1992,1)) #declare res as quarterly time series
-lines(fit, col="red", lty=2) #also plot fit in red color
-par(new=TRUE) #following series will be graphed on the existing plot
-plot.ts(res, axes=FALSE, ylab="", col="blue") #plot residuals w/o y-axis title, in blue color
-axis(side=4, at = pretty(range(res))) #add the right y-axis for residuals
-legend("topleft", legend=c("Actual", "Fit", "Res"), lty=c(2,2,1), col=c("black", "red", "blue")) #legend, debt and fit will be dashed 
-
-
-## Part 3 Dickey-Fuller Test   ###
-#P286
-dickey_fuller_test <- ur.df(unrate,type="drift",lags=1) 
-summary(dickey_fuller_test)
-
-
-ur.df(unrate,type="drift",lags=0) 
-ur.df(diff(unrate),type="drift",lags=0) 
-ur.df(diff(diff(unrate)),type="drift",lags=0) 
-
-dunrate<-diff(unrate)
-model_dickey_fuller <-dynlm(dunrate ~ lag(unrate,-1)) #regression correspondong to the above ADF test
-summary(model_dickey_fuller) #estimation output
-AIC(model_dickey_fuller)
-## [1] 171.2994
-BIC(model_dickey_fuller)
-## [1] 175.6966
-res_dickey_fuller<-  residuals(model_dickey_fuller) #generate residuals
-acf(res_dickey_fuller)
-pacf(res_dickey_fuller)
-
-
-model_lag1 <-dynlm(dunrate ~ lag(unrate,-1)+lag(dunrate,-1)) #regression corresponding to the above ADF test
-summary(model_lag1)
-
-AIC(model_lag1)
-## [1] 134.9974
-BIC(model_lag1)
-## [1] 140.7334
-res_lag1<-  residuals(model_lag1)
-acf(res_lag1)
-pacf(res_lag1)
-
-
-# P287 Prepare to forecast table 10.8 
-model_ar1 <-dynlm(dunrate ~ lag(dunrate,-1)+0) #AR(1) w/o constant for differenced series
-summary(model_ar1)
-AIC(model_ar1)
-## [1] 135.857
-BIC(model_ar1)
-## [1] 138.725
-
-fcast_ar1=union(unrate, c(1,2,3,4)) #fcast will include actual SPAIN and 4 forecasts for SPAIN
-fcastd_ar1=union(dunrate, c(1,2,3,4)) #fcastd will include actual dSPAIN and 4 forecasts for dSPAIN
-
-for(i in 1:4){
-  fcastd_ar1[32+i]=coef(model_ar1)[1]*fcastd_ar1[31+i] #manually retrieving forecasts from AR(1) model for dSPAIN
-  fcast_ar1[33+i]=fcast_ar1[32+i]+fcast_ar1[32+i] #the forecast for fcast_t = fcast_t-1 +fcastd_t (note that fcastd is one period "behind", thats why the last term is fcastd[32+i], and not fcastd[33+i])
-}
-
-# P288, fig 10.13
-fcast = ts(fcast, frequency = 1, start = 1970)
-ts.plot(fcast) #plot of the forecast
-lines(SPAIN, col=6) #simualtaneous plotting of the actual series in magenta color
-
-
-#P289 do the same for the u.s.
-ur.df(USA,type="trend",lags=1) #ADF for USA with trend and constat
-model <- dynlm(diff(USA) ~ lag(USA,-1)+diff(lag(USA,-1))+trend(USA)) #corresponding regression
-summary(model)
-AIC(model)
-## [1] 104.6664
-BIC(model)
-## [1] 111.8363
-model <- dynlm(USA ~ lag(USA,-1)+lag(USA,-2)+trend(USA)) #AR(2) with trend and constant
-summary(model)
-AIC(model)
-## [1] 104.6664
-BIC(model)
-## [1] 111.8363
-```
-
-
