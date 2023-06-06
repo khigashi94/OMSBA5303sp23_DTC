@@ -1,6 +1,8 @@
 ---
 title: "OMSBA5305 Data Translation Challenge, R Code"
-output: html_notebook
+output:
+  pdf_document: default
+  html_notebook: default
 ---
 
 # Load Libraries
@@ -289,7 +291,7 @@ An AR(3) model is fitted to the estimation sample using dynlm(). The model is su
 ### 90% Control, 10% Test
 ```{r}
 #fit AR(3)
-ar3_model<-dynlm(unrate_forecast ~ lag(unrate_forecast,-1) + lag(unrate_forecast,-3), start=c(1948,1), end=c(2023,2)) 
+ar3_model<-dynlm(unrate_forecast ~ lag(unrate_forecast,-1) + lag(unrate_forecast,-3), start=c(1948,1), end=c(2023,2))
 summary(ar3_model)
 
 
@@ -328,10 +330,9 @@ colnames(ar3_data_onestep)[3] <- "forecast"
 ar3_onestep_error <- ar3_data_onestep$UNRATE - ar3_data_onestep$forecast
 ar3_onestep_loss <- (ar3_data_onestep$UNRATE - ar3_data_onestep$forecast)^2
 ar3_onestep_mse <- mean((ar3_data_onestep$UNRATE - ar3_data_onestep$forecast)^2)
-ar3_onestep_error
 
-fAR3_onestep <- cbind(data, ar3_data_onestep[3], error_onestep, loss_onestep)
-
+fAR3_onestep <- cbind(data, ar3_data_onestep[3], ar3_onestep_error, ar3_onestep_loss)
+fcast1_onestep <- fAR3_onestep$forecast
 ar3_onestep_mpetest <- lm(ferror1 ~ 1)
 summary(ar3_onestep_mpetest)
 
@@ -420,7 +421,7 @@ cbind(data_estimation_sample, fcast1, ferror1, loss1, fcast2, ferror2, loss2, fc
 
 # Plots
 ```{r}
-forec <- cbind(data_estimation_sample,fcast1, fcast2, fcast3, fcast4)
+forec <- cbind(data_estimation_sample,fcast1, fcast1_onestep,fcast2, fcast3, fcast4)
 ## Adjust date tye
 forec$observation_date = as.Date(forec$observation_date)
 data$observation_date = as.Date(data$observation_date)
@@ -497,6 +498,16 @@ ggplot() +
   ylab("GDP MoM% Rate")+
   theme(aspect.ratio=1/2)
 ```
+
+```{r}
+ggplot() + 
+  # geom_line(data, mapping=aes(x=observation_date, y=UNRATE)) +
+  geom_line(fAR3_onestep, mapping = aes(x = observation_date, y = UNRATE))+
+  geom_line(fAR3_onestep, mapping = aes(x = observation_date, y = forecast, color= 'yellow')))
+
+fAR3_onestep
+```
+
 
 
 
